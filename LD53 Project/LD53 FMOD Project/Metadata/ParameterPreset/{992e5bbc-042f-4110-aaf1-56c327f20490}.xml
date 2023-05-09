@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{992e5bbc-042f-4110-aaf1-56c327f20490}">
+		<property name="name">
+			<value>Brass</value>
+		</property>
+		<relationship name="folder">
+			<destination>{a5299425-e74f-4714-95ac-01e9a1f34ee2}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{5cb7f01c-5455-4af9-a5d7-6d6f939ea48a}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{5cb7f01c-5455-4af9-a5d7-6d6f939ea48a}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+		<property name="seekSpeed">
+			<value>0.89999997615814209</value>
+		</property>
+	</object>
+</objects>

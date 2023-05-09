@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,6 +13,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 movement;
     [SerializeField] private float moveSpeed;
     [SerializeField] Transform Player;
+    [SerializeField] private GameObject _door;
+    
 
     //Fields for interaction for pushing blocks
     [SerializeField] private Transform interactOrigin;
@@ -21,7 +25,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask whatIsWall;
     [SerializeField] private int numFound;
     private PushBlock pushblock;
-    private bool pushBlockCheck = false;
+    private PushBlockOnce pushblockonce;
+    private bool hasItemCheck = false;
+    [SerializeField] public List<string> inventory = new List<string>();
+    private bool pullCheckFlag = false;
+    public bool hasDoorKey = false;
 
 
     private void Awake()
@@ -46,6 +54,12 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(_door.GetComponent<doorFunction>().levelLoader - 1);
+        }
+
         if (Vector3.Distance(Player.position, movePoint.position) <= 0.05f)
         {
             movement = playerMovement.tileMovement.Movement.ReadValue<Vector2>();
@@ -57,6 +71,12 @@ public class PlayerController : MonoBehaviour
                     movePoint.position += new Vector3(movement.x, 0f, 0f);
                     movement.y = 0;
                 }
+                //else if (Physics2D.OverlapCircle(movePoint.position + new Vector3(movement.x, 0f, 0f), 0.2f, whatIsWall) && playerMovement.tileMovement.MoveBox.ReadValue<float>() != 1)
+                //{
+                //    movement.x = 0;
+                //    movement.y = 0;
+                //}
+                animator.SetFloat("lastMoveX", movement.x);
             }
             else if (Mathf.Abs(movement.y) == 1f)
             {
@@ -65,22 +85,42 @@ public class PlayerController : MonoBehaviour
                     movePoint.position += new Vector3(0, movement.y, 0f);
                     movement.x = 0;
                 }
+                //else if (Physics2D.OverlapCircle(movePoint.position + new Vector3(movement.x, 0f, 0f), 0.2f, whatIsWall) && playerMovement.tileMovement.MoveBox.ReadValue<float>() != 1)
+                //{
+                //    movement.x = 0;
+                //    movement.y = 0;
+                //}
+                
             }
         }
         numFound = Physics2D.OverlapCircleNonAlloc(interactPos.position, 0.2f, hitColliders, whatIsInteractable);
         if (numFound > 0)
         {
-            if (playerMovement.tileMovement.MoveBox.ReadValue<float>() == 1)
+            if (movement.x == 0 && movement.y == 0)
             {
-                pushblock = hitColliders[0].GetComponent<PushBlock>();
-                pushblock.pushBlock(movement);
+                pullCheck();
             }
+            else
+            {
+                if (playerMovement.tileMovement.MoveBox.ReadValue<float>() == 1 && (movement.x != 0 || movement.y != 0))
+                {
+                    if (hitColliders[0].GetComponent<PushBlock>() != null)
+                    {
+                        pushblock = hitColliders[0].GetComponent<PushBlock>();
+                        pushblock.pushBlock(movement);
+                    }
+                    if (hitColliders[0].GetComponent<PushBlockOnce>() != null)
+                    {
+                        pushblockonce = hitColliders[0].GetComponent<PushBlockOnce>();
+                        pushblockonce.pushBlock(movement);
+                    }
+                }
+            }
+
         }
         animator.SetFloat("Horizontal", movement.x);
         animator.SetFloat("Vertical", movement.y);
         animator.SetFloat("Speed", movement.magnitude);
-        
-
     }
     private void FixedUpdate()
     {
@@ -110,17 +150,81 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void blockPush()
-    {
-        if (pushBlockCheck)
-        {
-
-        }
-    }
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(interactPos.position, 0.2f);
     }
 
+    public void setItemCheck(GameObject itemPickedUp)
+    {
+        hasItemCheck = true;
+        inventory.Add(itemPickedUp.name);
+
+    }
+
+    private void pullCheck()
+    {
+        if (playerMovement.tileMovement.PullBox.ReadValue<float>() == 1)
+        {
+            playerMovement.tileMovement.PullBox.Reset();
+            if (hitColliders[0].GetComponent<PushBlock>() != null || hitColliders[0].GetComponent<PushBlockOnce>() != null)
+            {
+                switch (interactOrigin.localRotation.eulerAngles.z)
+                {
+                    case 0:
+                        if (!Physics2D.OverlapCircle(movePoint.position + new Vector3(0f, 1f, 0f), 0.2f, whatIsWall))
+                        {
+                            movePoint.position += new Vector3(0f, 1f, 0f);
+                            movement.x = 0;
+                            pullCheckFlag = true;
+
+                        }
+                        break;
+                    case 90:
+                        if (!Physics2D.OverlapCircle(movePoint.position + new Vector3(-1f, 0, 0f), 0.2f, whatIsWall))
+                        {
+                            movePoint.position += new Vector3(-1f, 0f, 0f);
+                            movement.y = 0;
+                            pullCheckFlag = true;
+                        }
+                        break;
+                    case 180:
+                        if (!Physics2D.OverlapCircle(movePoint.position + new Vector3(0f, -1f, 0f), 0.2f, whatIsWall))
+                        {
+                            movePoint.position += new Vector3(0f, -1f, 0f);
+                            movement.x = 0;
+                            pullCheckFlag = true;
+                        }
+                        break;
+                    case 270:
+                        if (!Physics2D.OverlapCircle(movePoint.position + new Vector3(1f, 0, 0f), 0.2f, whatIsWall))
+                        {
+                            movePoint.position += new Vector3(1f, 0f, 0f);
+                            movement.y = 0;
+                            pullCheckFlag = true;
+                        }
+                        break;
+                }
+                if (hitColliders[0].GetComponent<PushBlock>() != null && pullCheckFlag)
+                {
+                    pushblock = hitColliders[0].GetComponent<PushBlock>();
+                    pushblock.pullBlock(interactOrigin.localRotation.eulerAngles.z);
+                }
+                if (hitColliders[0].GetComponent<PushBlockOnce>() != null && pullCheckFlag)
+                {
+                    pushblockonce = hitColliders[0].GetComponent<PushBlockOnce>();
+                    if (!pushblockonce.hasPushedOrPulled)
+                    {
+                        pushblockonce.pullBlock(interactOrigin.localRotation.eulerAngles.z);
+                    }
+                    else
+                    {
+                        movePoint.position = transform.position;
+                    }
+                }
+            }
+        }
+        pullCheckFlag = false;
+    }
 }

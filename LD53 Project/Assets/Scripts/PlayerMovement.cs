@@ -44,6 +44,15 @@ public partial class @PlayerMovement: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PullBox"",
+                    ""type"": ""Button"",
+                    ""id"": ""2b8f1996-e9b0-4ab3-8d0e-75fcfcc4d72c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -112,6 +121,17 @@ public partial class @PlayerMovement: IInputActionCollection2, IDisposable
                     ""action"": ""MoveBox"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""71824801-4950-4342-81b4-d4d738098834"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PullBox"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -122,6 +142,7 @@ public partial class @PlayerMovement: IInputActionCollection2, IDisposable
         m_tileMovement = asset.FindActionMap("tileMovement", throwIfNotFound: true);
         m_tileMovement_Movement = m_tileMovement.FindAction("Movement", throwIfNotFound: true);
         m_tileMovement_MoveBox = m_tileMovement.FindAction("MoveBox", throwIfNotFound: true);
+        m_tileMovement_PullBox = m_tileMovement.FindAction("PullBox", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -185,12 +206,14 @@ public partial class @PlayerMovement: IInputActionCollection2, IDisposable
     private List<ITileMovementActions> m_TileMovementActionsCallbackInterfaces = new List<ITileMovementActions>();
     private readonly InputAction m_tileMovement_Movement;
     private readonly InputAction m_tileMovement_MoveBox;
+    private readonly InputAction m_tileMovement_PullBox;
     public struct TileMovementActions
     {
         private @PlayerMovement m_Wrapper;
         public TileMovementActions(@PlayerMovement wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_tileMovement_Movement;
         public InputAction @MoveBox => m_Wrapper.m_tileMovement_MoveBox;
+        public InputAction @PullBox => m_Wrapper.m_tileMovement_PullBox;
         public InputActionMap Get() { return m_Wrapper.m_tileMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -206,6 +229,9 @@ public partial class @PlayerMovement: IInputActionCollection2, IDisposable
             @MoveBox.started += instance.OnMoveBox;
             @MoveBox.performed += instance.OnMoveBox;
             @MoveBox.canceled += instance.OnMoveBox;
+            @PullBox.started += instance.OnPullBox;
+            @PullBox.performed += instance.OnPullBox;
+            @PullBox.canceled += instance.OnPullBox;
         }
 
         private void UnregisterCallbacks(ITileMovementActions instance)
@@ -216,6 +242,9 @@ public partial class @PlayerMovement: IInputActionCollection2, IDisposable
             @MoveBox.started -= instance.OnMoveBox;
             @MoveBox.performed -= instance.OnMoveBox;
             @MoveBox.canceled -= instance.OnMoveBox;
+            @PullBox.started -= instance.OnPullBox;
+            @PullBox.performed -= instance.OnPullBox;
+            @PullBox.canceled -= instance.OnPullBox;
         }
 
         public void RemoveCallbacks(ITileMovementActions instance)
@@ -237,5 +266,6 @@ public partial class @PlayerMovement: IInputActionCollection2, IDisposable
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnMoveBox(InputAction.CallbackContext context);
+        void OnPullBox(InputAction.CallbackContext context);
     }
 }
