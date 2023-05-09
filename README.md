@@ -2,11 +2,9 @@
 
 
 
-## Getting started
+## Box o Bunny
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Box o Bunny is a 2D top down puzzle block game made for Ludum Dare 53. You’re a lost rabbit trying to find your lost parcel address, so you can be delivered to your new home. You also get to help other lost rabbits along the way!
 
 ## Add your files
 
