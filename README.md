@@ -4,7 +4,7 @@
 
 ## Box o Bunny
 
-Box o Bunny is a 2D top down puzzle block game made for Ludum Dare 53. You’re a lost rabbit trying to find your lost parcel address, so you can be delivered to your new home. You also get to help other lost rabbits along the way!
+Box o Bunny is a 2D top down puzzle block game made for Ludum Dare 53. You’re a lost rabbit trying to find your lost parcel address, so you can be delivered to your new home. You also get to help other lost rabbits along the way! Made in Collaboration with Settings or Settingscon depending on platform.
 
 ## Controls
 
